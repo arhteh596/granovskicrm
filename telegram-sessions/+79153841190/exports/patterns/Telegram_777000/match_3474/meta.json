@@ -1,0 +1,22 @@
+{
+  "chat_info": {
+    "id": 777000,
+    "name": "Telegram",
+    "type": "User",
+    "is_personal": true,
+    "username": null,
+    "phone": "42777"
+  },
+  "match_message_id": 3474,
+  "date": "2025-11-13T13:30:48+00:00",
+  "text": "Two-Step Verification enabled. Dear Светлана, a Two-Step Verification password was set up for your account on 13/11/2025 at 13:30:48 UTC.\n\nDevice: Telegram Android, 12.1.1, Motorola moto e20, Android, 11 (30)\nLocation: Slough, United Kingdom\n\nIf you didn’t request this, review your Active Sessions: Settings > Devices (or Privacy & Security > Active Sessions).",
+  "matched_keywords": [
+    "password",
+    "pass"
+  ],
+  "search_patterns": "пароль,password,pass,логин,login,крипта,crypto,ключ,key,токен,token,секрет,secret,wallet,кошелек,seed,сид,phrase",
+  "context_size": {
+    "before": 0,
+    "after": 0
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": 719,
+  "date": "2023-03-25T16:29:56+00:00",
+  "text": "Говорит у них таких окладов нет, но еще думает, переговорит со знакомыми.",
+  "has_media": false,
+  "sender": {
+    "sender_id": 5106362466,
+    "sender_username": null,
+    "sender_first_name": "Светлана",
+    "sender_last_name": "Завгородняя",
+    "sender_phone": "79153841190",
+    "sender_is_bot": false
+  },
+  "chat_id": 1440314250,
+  "chat_name": "Немудров Андрей",
+  "chat_type": "User",
+  "message_type": "before_4"
+}

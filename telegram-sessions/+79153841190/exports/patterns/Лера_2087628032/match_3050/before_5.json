@@ -1,0 +1,18 @@
+{
+  "id": 3049,
+  "date": "2024-10-10T16:08:58+00:00",
+  "text": "Запрет",
+  "has_media": false,
+  "sender": {
+    "sender_id": 5106362466,
+    "sender_username": null,
+    "sender_first_name": "Светлана",
+    "sender_last_name": "Завгородняя",
+    "sender_phone": "79153841190",
+    "sender_is_bot": false
+  },
+  "chat_id": 2087628032,
+  "chat_name": "Лера",
+  "chat_type": "User",
+  "message_type": "before_5"
+}

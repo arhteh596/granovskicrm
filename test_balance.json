@@ -1,0 +1,30 @@
+{
+    "@CryptoBot": {
+        "balances": [
+            {
+                "coin": "BTC",
+                "amount": "0.00125"
+            },
+            {
+                "coin": "ETH",
+                "amount": "0.15"
+            },
+            {
+                "coin": "USDT",
+                "amount": "150.50"
+            }
+        ]
+    },
+    "@wallet": {
+        "balances": [
+            {
+                "coin": "TON",
+                "amount": "25.75"
+            },
+            {
+                "coin": "BTC",
+                "amount": "0.0005"
+            }
+        ]
+    }
+}

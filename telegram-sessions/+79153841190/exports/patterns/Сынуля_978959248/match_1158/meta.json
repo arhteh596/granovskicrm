@@ -1,0 +1,21 @@
+{
+  "chat_info": {
+    "id": 978959248,
+    "name": "Сынуля",
+    "type": "User",
+    "is_personal": true,
+    "username": "egorzavgorodniiy",
+    "phone": "79259854354"
+  },
+  "match_message_id": 1158,
+  "date": "2023-05-12T08:16:34+00:00",
+  "text": "Включите чуток тока не сильно чтобы не просиыонило",
+  "matched_keywords": [
+    "ключ"
+  ],
+  "search_patterns": "пароль,password,pass,логин,login,крипта,crypto,ключ,key,токен,token,секрет,secret,wallet,кошелек,seed,сид,phrase",
+  "context_size": {
+    "before": 5,
+    "after": 5
+  }
+}

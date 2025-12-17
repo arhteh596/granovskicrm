@@ -1,0 +1,4 @@
+telethon==1.35.0
+requests==2.31.0
+aiohttp==3.9.5
+PySocks>=1.7.1

@@ -1,0 +1,21 @@
+{
+  "chat_info": {
+    "id": 1440314250,
+    "name": "Немудров Андрей",
+    "type": "User",
+    "is_personal": true,
+    "username": null,
+    "phone": "79163227215"
+  },
+  "match_message_id": 721,
+  "date": "2023-03-25T16:32:53+00:00",
+  "text": "Это они сидеть в БЦ парк победы на В.Кожиной 1?",
+  "matched_keywords": [
+    "сид"
+  ],
+  "search_patterns": "пароль,password,pass,логин,login,крипта,crypto,ключ,key,токен,token,секрет,secret,wallet,кошелек,seed,сид,phrase",
+  "context_size": {
+    "before": 5,
+    "after": 5
+  }
+}
