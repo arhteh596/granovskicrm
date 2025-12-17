@@ -110,7 +110,7 @@ if [ -d "/opt/crm/.git" ]; then
     git pull
 else
     rm -rf /opt/crm/*
-    git clone https://github.com/arhteh596/-.git /opt/crm
+    git clone https://github.com/arhteh596/granovskicrm.git /opt/crm
 fi
 log_info "Код проекта загружен"
 

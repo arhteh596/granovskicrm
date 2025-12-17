@@ -101,7 +101,7 @@ cd $APP_DIR
 # 6. Клонирование репозитория (если еще не клонирован)
 if [ ! -d ".git" ]; then
     log_warn "Репозиторий не найден. Необходимо загрузить код вручную или через git clone"
-    log_info "Пример: git clone https://github.com/arhteh596/-.git ."
+    log_info "Пример: git clone https://github.com/arhteh596/granovskicrm.git ."
 else
     log_info "Обновление кода из репозитория..."
     git pull

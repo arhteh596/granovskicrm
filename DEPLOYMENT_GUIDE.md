@@ -53,7 +53,7 @@ ssh root@151.243.113.21
 
 ```bash
 cd /opt
-git clone https://github.com/arhteh596/-.git crm
+git clone https://github.com/arhteh596/granovskicrm.git crm
 cd crm
 ```
 

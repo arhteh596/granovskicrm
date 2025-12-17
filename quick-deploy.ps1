@@ -8,6 +8,7 @@ $SERVER_IP = "151.243.113.21"
 $SERVER_USER = "root"
 $SERVER_PASSWORD = "NUN4BIU3zHxunAHTKfs2"
 $DOMAIN = "granovski-crm.site"
+$GITHUB_REPO = "https://github.com/arhteh596/granovskicrm.git"
 
 Write-Host "🚀 Автоматическое развертывание CRM на production сервере" -ForegroundColor Green
 Write-Host ""
@@ -145,7 +146,7 @@ Write-Host "   ssh $SERVER_USER@$SERVER_IP" -ForegroundColor Gray
 Write-Host ""
 Write-Host "2. Клонируйте репозиторий:" -ForegroundColor White
 Write-Host "   cd /opt" -ForegroundColor Gray
-Write-Host "   git clone https://github.com/arhteh596/-.git crm" -ForegroundColor Gray
+Write-Host "   git clone $GITHUB_REPO crm" -ForegroundColor Gray
 Write-Host "   cd crm" -ForegroundColor Gray
 Write-Host ""
 Write-Host "3. Загрузите файл .env.production.server на сервер" -ForegroundColor White
