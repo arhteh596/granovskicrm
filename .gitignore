@@ -14,6 +14,17 @@ frontend/build/
 # Environment files
 .env.local
 .env.*.local
+.env
+
+# Secrets & credentials
+SERVER_CREDENTIALS.txt
+Proxy.txt
+proxy_test_session.session
+*.session
+5
+
+# Python venv
+.venv/
 
 # Logs
 logs/
@@ -22,6 +33,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 backend/logs/
+backend/db/logs/
 
 # OS files
 .DS_Store
@@ -35,4 +47,11 @@ Thumbs.db
 *~
 
 # Uploads (optional - раскомментируйте если не хотите коммитить)
-# uploads/
+uploads/
+
+# Telegram sessions and backups
+telegram-sessions/
+backups/
+
+# Tool outputs
+tools/proxy_report.json
