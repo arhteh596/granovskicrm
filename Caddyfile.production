@@ -1,0 +1,39 @@
+{
+	"$schema": "https://caddyserver.com/docs/caddyfile",
+	"servers": {
+		"https://granovski-crm.site": {
+			"reverse_proxy": "http://frontend:80"
+		}
+	}
+}
+
+granovski-crm.site, www.granovski-crm.site {
+	# Автоматический HTTPS
+	encode gzip
+
+	# Проксирование API запросов на backend
+	handle /api/* {
+		reverse_proxy backend:3000
+	}
+
+	# Проксирование WebSocket соединений
+	handle /socket.io/* {
+		reverse_proxy backend:3000
+	}
+
+	# Uploads (статичные файлы)
+	handle /uploads/* {
+		reverse_proxy backend:3000
+	}
+
+	# Все остальное на frontend
+	handle {
+		reverse_proxy frontend:80
+	}
+
+	# Логи
+	log {
+		output file /data/access.log
+		format json
+	}
+}
