@@ -281,17 +281,26 @@ export const Layout: React.FC = () => {
                             style={{
                                 background: 'var(--color-bg-card)',
                                 border: 'var(--border)',
-                                padding: '4px',
+                                padding: '8px',
                                 borderRadius: '10px',
                                 cursor: 'pointer',
-                                transition: 'transform 0.2s',
-                                color: 'var(--color-accent)',
+                                transition: 'all 0.2s',
+                                color: 'var(--color-text-second)',
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
+                                width: '36px',
+                                height: '36px'
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'scale(1.05)';
+                                e.currentTarget.style.color = 'var(--color-accent)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'scale(1)';
+                                e.currentTarget.style.color = 'var(--color-text-second)';
+                            }}
+                            title={theme === 'dark' ? 'Светлая тема' : 'Темная тема'}
                         >
                             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                         </button>
@@ -303,10 +312,10 @@ export const Layout: React.FC = () => {
                                 style={{
                                     background: 'var(--color-bg-card)',
                                     border: 'var(--border)',
-                                    padding: '4px',
+                                    padding: '8px',
                                     borderRadius: '10px',
                                     cursor: 'pointer',
-                                    transition: 'transform 0.2s',
+                                    transition: 'all 0.2s',
                                     color: 'var(--color-text-second)',
                                     display: 'flex',
                                     alignItems: 'center',
@@ -315,8 +324,15 @@ export const Layout: React.FC = () => {
                                     height: '36px',
                                     position: 'relative'
                                 }}
-                                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.transform = 'scale(1.05)';
+                                    e.currentTarget.style.color = 'var(--color-accent)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = 'scale(1)';
+                                    e.currentTarget.style.color = 'var(--color-text-second)';
+                                }}
+                                title="Уведомления"
                             >
                                 <Bell size={18} />
                                 {unreadCount > 0 && (
@@ -397,42 +413,62 @@ export const Layout: React.FC = () => {
                                 </div>
                             )}
                         </div>
+                        {/* Кнопка Админка только для администраторов */}
+                        {user?.role === 'admin' && (
+                            <button
+                                style={{
+                                    background: 'var(--color-bg-card)',
+                                    border: 'var(--border)',
+                                    padding: '8px',
+                                    borderRadius: '10px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    color: 'var(--color-text-second)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    width: '36px',
+                                    height: '36px'
+                                }}
+                                onClick={() => navigate('/admin/panel')}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.transform = 'scale(1.05)';
+                                    e.currentTarget.style.color = 'var(--color-accent)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.transform = 'scale(1)';
+                                    e.currentTarget.style.color = 'var(--color-text-second)';
+                                }}
+                                title="Панель администратора"
+                            >
+                                <LayoutDashboard size={18} />
+                            </button>
+                        )}
                         <button
+                            onClick={() => navigate('/profile')}
                             style={{
                                 background: 'var(--color-bg-card)',
                                 border: 'var(--border)',
-                                padding: '4px 10px',
+                                padding: '8px',
                                 borderRadius: '10px',
                                 cursor: 'pointer',
-                                transition: 'transform 0.2s',
+                                transition: 'all 0.2s',
                                 color: 'var(--color-text-second)',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '6px',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
+                                width: '36px',
+                                height: '36px'
                             }}
-                            onClick={() => navigate('/admin/panel')}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                        >
-                            <LayoutDashboard size={16} />
-                            <span style={{ fontWeight: 600 }}>Админка</span>
-                        </button>
-                        <button
-                            style={{
-                                background: 'var(--color-bg-card)',
-                                border: 'var(--border)',
-                                padding: '4px',
-                                borderRadius: '10px',
-                                cursor: 'pointer',
-                                transition: 'transform 0.2s',
-                                color: 'var(--color-text-second)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center'
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'scale(1.05)';
+                                e.currentTarget.style.color = 'var(--color-accent)';
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'scale(1)';
+                                e.currentTarget.style.color = 'var(--color-text-second)';
+                            }}
+                            title="Настройки профиля"
                         >
                             <Settings size={18} />
                         </button>
@@ -490,7 +526,7 @@ export const Layout: React.FC = () => {
                                     color: 'var(--color-text-second)',
                                     textTransform: 'uppercase'
                                 }}>
-                                    {user?.role === 'admin' ? 'ADMIN' : 'MANAGER'}
+                                    {user?.role === 'admin' ? 'ADMIN' : user?.role === 'zakryv' ? 'ЗАКРЫВ' : 'MANAGER'}
                                 </span>
                             </div>
                         </div>
@@ -499,23 +535,28 @@ export const Layout: React.FC = () => {
                             style={{
                                 background: 'var(--color-bg-card)',
                                 border: 'var(--border)',
-                                padding: '4px',
+                                padding: '8px',
                                 borderRadius: '10px',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s',
                                 color: 'var(--color-text-second)',
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'center'
+                                justifyContent: 'center',
+                                width: '36px',
+                                height: '36px'
                             }}
                             onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'scale(1.05)';
                                 e.currentTarget.style.background = 'rgba(255,0,0,0.1)';
                                 e.currentTarget.style.color = '#ff5555';
                             }}
                             onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'scale(1)';
                                 e.currentTarget.style.background = 'var(--color-bg-card)';
                                 e.currentTarget.style.color = 'var(--color-text-second)';
                             }}
+                            title="Выйти"
                         >
                             <LogOut size={18} />
                         </button>

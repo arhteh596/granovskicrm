@@ -59,7 +59,7 @@ export const Statistics: React.FC = () => {
     const [data, setData] = useState<StatsData | null>(null);
     const [managerData, setManagerData] = useState<ManagerStatsData | null>(null);
     const [callHistory, setCallHistory] = useState<CallHistoryItem[]>([]);
-    const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'period'>('week');
+    const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'period'>('today');
     const [dateFrom, setDateFrom] = useState<string>('');
     const [dateTo, setDateTo] = useState<string>('');
 

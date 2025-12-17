@@ -15,6 +15,24 @@ import { Client, User } from '../types';
 import { useUiStore } from '../store/uiStore';
 import './manager-call.css';
 
+// Адаптивный хук
+const useResponsive = () => {
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    
+    useEffect(() => {
+        const handleResize = () => setWindowWidth(window.innerWidth);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    
+    const isMobile = windowWidth < 768;
+    const isTablet = windowWidth >= 768 && windowWidth < 1024;
+    const isCompact = windowWidth < 1200; // Для 30-40% ширины экрана
+    const isVerySmall = windowWidth < 480;
+    
+    return { isMobile, isTablet, isCompact, isVerySmall, windowWidth };
+};
+
 const DEFAULT_STATUS_BUTTONS = [
     { status: 'не дозвон', color: '#4b5563', action: 'set-status' as const },
     { status: 'автоответчик', color: '#2563eb', action: 'set-status' as const },
@@ -142,7 +160,8 @@ const FieldRow: React.FC<{
 };
 
 export const ManagerCall: React.FC<{ mode?: 'default' | 'wiki' }> = ({ mode = 'default' }) => {
-        const { addNotification } = useNotificationsStore();
+    const { addNotification } = useNotificationsStore();
+    const { isMobile, isTablet, isCompact, isVerySmall } = useResponsive();
     const [client, setClient] = useState<Client | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [notes, setNotes] = useState('');
@@ -458,8 +477,21 @@ export const ManagerCall: React.FC<{ mode?: 'default' | 'wiki' }> = ({ mode = 'd
                     </div>
 
                     {/* Status Buttons Block - Separate Card */}
-                    <div className="client-card" style={{ marginTop: '16px' }}>
-                        <div className="call-status-grid" style={{ ['--status-columns' as any]: statusColumnsCount }}>
+                    <div className="client-card" style={{ marginTop: '16px', padding: isMobile ? '12px' : '20px' }}>
+                        <div 
+                            className="call-status-grid" 
+                            style={{ 
+                                ['--status-columns' as any]: statusColumnsCount,
+                                display: 'grid',
+                                gridTemplateColumns: isMobile 
+                                    ? `repeat(${Math.min(statusColumnsCount || 2, 2)}, 1fr)` 
+                                    : isCompact 
+                                        ? `repeat(${Math.min(statusColumnsCount || 3, 3)}, 1fr)`
+                                        : `repeat(${statusColumnsCount || 4}, 1fr)`,
+                                gap: isMobile ? '8px' : '12px',
+                                width: '100%'
+                            }}
+                        >
                             {statusButtonList.map((btn) => {
                                 const Icon = STATUS_ICON_MAP[btn.status_value] || STATUS_ICON_MAP.default;
                                 return (
@@ -478,16 +510,44 @@ export const ManagerCall: React.FC<{ mode?: 'default' | 'wiki' }> = ({ mode = 'd
                                             handleCallStatus(btn.status_value);
                                         }}
                                         className="call-status-button"
-                                        style={{ background: btn.color, color: '#fff', borderColor: 'transparent' }}
+                                        style={{ 
+                                            background: btn.color, 
+                                            color: '#fff', 
+                                            borderColor: 'transparent',
+                                            padding: isMobile ? '10px 8px' : '12px 16px',
+                                            fontSize: isMobile ? '0.8rem' : '0.9rem',
+                                            minHeight: isMobile ? '48px' : '52px',
+                                            display: 'flex',
+                                            flexDirection: isMobile ? 'column' : 'row',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: isMobile ? '4px' : '8px',
+                                            fontWeight: '600',
+                                            borderRadius: '8px',
+                                            textAlign: 'center',
+                                            lineHeight: isMobile ? '1.1' : '1.2'
+                                        }}
                                         onMouseEnter={(e) => {
                                             e.currentTarget.style.filter = 'brightness(0.92)';
+                                            e.currentTarget.style.transform = 'translateY(-1px)';
                                         }}
                                         onMouseLeave={(e) => {
                                             e.currentTarget.style.filter = '';
+                                            e.currentTarget.style.transform = 'translateY(0)';
                                         }}
                                     >
-                                        <Icon size={14} />
-                                        {btn.label || btn.status_value}
+                                        <Icon size={isMobile ? 16 : 14} style={{ flexShrink: 0 }} />
+                                        <span style={{ 
+                                            overflow: 'hidden', 
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: isMobile ? 'nowrap' : 'normal',
+                                            maxWidth: '100%'
+                                        }}>
+                                            {isMobile && (btn.label || btn.status_value).length > 8 
+                                                ? `${(btn.label || btn.status_value).slice(0, 8)}...`
+                                                : (btn.label || btn.status_value)
+                                            }
+                                        </span>
                                     </Button>
                                 );
                             })}
@@ -497,22 +557,45 @@ export const ManagerCall: React.FC<{ mode?: 'default' | 'wiki' }> = ({ mode = 'd
                     {/* Модальное окно передачи */}
                     {showTransferModal && (
                         <div className="modal-overlay visible">
-                            <div className="modal-content" style={{ maxWidth: '500px' }}>
-                                <h3 className="modal-title">
-                                    <UserPlus size={24} />
+                            <div className="modal-content" style={{ 
+                                maxWidth: isMobile ? 'calc(100vw - 20px)' : '500px',
+                                width: isMobile ? 'calc(100vw - 20px)' : '90%',
+                                margin: isMobile ? '10px' : 'auto',
+                                padding: isMobile ? '16px' : '24px',
+                                borderRadius: isMobile ? '12px' : '16px'
+                            }}>
+                                <h3 className="modal-title" style={{
+                                    fontSize: isMobile ? '1.1rem' : '1.3rem',
+                                    marginBottom: isMobile ? '12px' : '16px'
+                                }}>
+                                    <UserPlus size={isMobile ? 20 : 24} />
                                     Передать клиента
                                 </h3>
                                 <button
                                     className="close-modal"
                                     onClick={() => { setShowTransferModal(false); setSelectedManager(null); }}
                                     aria-label="Закрыть"
+                                    style={{
+                                        top: isMobile ? '8px' : '12px',
+                                        right: isMobile ? '8px' : '12px',
+                                        width: isMobile ? '32px' : '36px',
+                                        height: isMobile ? '32px' : '36px'
+                                    }}
                                 >
-                                    <XCircle size={28} />
+                                    <XCircle size={isMobile ? 24 : 28} />
                                 </button>
 
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-lg)', marginTop: 'var(--space-lg)' }}>
+                                <div style={{ 
+                                    display: 'flex', 
+                                    flexDirection: 'column', 
+                                    gap: isMobile ? '12px' : 'var(--space-lg)', 
+                                    marginTop: isMobile ? '12px' : 'var(--space-lg)' 
+                                }}>
                                     <div>
-                                        <label className="input-label">Выберите менеджера</label>
+                                        <label className="input-label" style={{
+                                            fontSize: isMobile ? '0.9rem' : '1rem',
+                                            marginBottom: isMobile ? '6px' : '8px'
+                                        }}>Выберите менеджера</label>
                                         <select
                                             value={selectedManager || ''}
                                             onChange={(e) => setSelectedManager(Number(e.target.value))}
@@ -522,7 +605,9 @@ export const ManagerCall: React.FC<{ mode?: 'default' | 'wiki' }> = ({ mode = 'd
                                                 textOverflow: 'ellipsis', 
                                                 whiteSpace: 'nowrap', 
                                                 paddingRight: '30px',
-                                                cursor: 'pointer'
+                                                cursor: 'pointer',
+                                                fontSize: isMobile ? '14px' : '16px',
+                                                minHeight: isMobile ? '44px' : '48px'
                                             }}
                                         >
                                             <option value="">-- Выберите менеджера --</option>
@@ -775,49 +860,91 @@ export const ManagerCall: React.FC<{ mode?: 'default' | 'wiki' }> = ({ mode = 'd
                 <div className="client-card">
                     {/* COMPANY HEADER */}
                     <div className="company-header">
-                        <h2 className="company-title">
-                            <Building size={18} style={{ marginRight: 'var(--space-sm)', color: 'var(--color-accent)' }} />
+                        <h2 className="company-title" style={{
+                            fontSize: isMobile ? '1.1rem' : '1.3rem',
+                            lineHeight: '1.2'
+                        }}>
+                            <Building size={isMobile ? 16 : 18} style={{ marginRight: 'var(--space-sm)', color: 'var(--color-accent)' }} />
                             {client.company_name || 'Компания не указана'}
                         </h2>
                         <div className="company-meta">
                             <div style={{
                                 display: 'grid',
-                                gridTemplateColumns: '1fr 1fr 1fr',
-                                gap: 'var(--space-xl)',
+                                gridTemplateColumns: isMobile ? '1fr' : isCompact ? '1fr 1fr' : '1fr 1fr 1fr',
+                                gap: isMobile ? 'var(--space-sm)' : 'var(--space-xl)',
                                 marginBottom: '0',
-                                fontSize: 'var(--font-size-xs)',
+                                fontSize: isMobile ? '0.8rem' : 'var(--font-size-xs)',
                                 color: 'var(--color-text-second)',
                                 lineHeight: '1.1',
                                 alignItems: 'center',
                                 width: '100%'
                             }}>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                                    <Info size={12} style={{ color: 'var(--color-text-second)', opacity: 0.7 }} />
+                                <div style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: isMobile ? 'flex-start' : 'center', 
+                                    gap: '4px',
+                                    padding: isMobile ? '4px 8px' : '0',
+                                    background: isMobile ? 'rgba(255,255,255,0.05)' : 'transparent',
+                                    borderRadius: isMobile ? '6px' : '0'
+                                }}>
+                                    <Info size={12} style={{ color: 'var(--color-text-second)', opacity: 0.7, flexShrink: 0 }} />
                                     <span style={{ fontWeight: '400' }}>ИНН: {client.company_inn || '-'}</span>
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                                    <Wallet size={12} style={{ color: 'var(--color-text-second)', opacity: 0.7 }} />
-                                    <span style={{ fontWeight: '400' }}>Капитал: {client.authorized_capital || '-'}</span>
+                                <div style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: isMobile ? 'flex-start' : 'center', 
+                                    gap: '4px',
+                                    padding: isMobile ? '4px 8px' : '0',
+                                    background: isMobile ? 'rgba(255,255,255,0.05)' : 'transparent',
+                                    borderRadius: isMobile ? '6px' : '0'
+                                }}>
+                                    <Wallet size={12} style={{ color: 'var(--color-text-second)', opacity: 0.7, flexShrink: 0 }} />
+                                    <span style={{ fontWeight: '400' }}>
+                                        Капитал: {isMobile && client.authorized_capital ? 
+                                            (client.authorized_capital.length > 15 ? `${client.authorized_capital.slice(0, 15)}...` : client.authorized_capital) 
+                                            : (client.authorized_capital || '-')}
+                                    </span>
                                 </div>
                                 {client.source_url ? (
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                                        <LinkIcon size={12} style={{ color: 'var(--color-accent)' }} />
-                                        <a href={client.source_url} target="_blank" rel="noreferrer" className="link-with-icon" style={{ fontSize: 'var(--font-size-xs)' }}>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: isMobile ? 'flex-start' : 'center', 
+                                        gap: '4px',
+                                        padding: isMobile ? '4px 8px' : '0',
+                                        background: isMobile ? 'rgba(255,255,255,0.05)' : 'transparent',
+                                        borderRadius: isMobile ? '6px' : '0'
+                                    }}>
+                                        <LinkIcon size={12} style={{ color: 'var(--color-accent)', flexShrink: 0 }} />
+                                        <a href={client.source_url} target="_blank" rel="noreferrer" className="link-with-icon" style={{ 
+                                            fontSize: isMobile ? '0.8rem' : 'var(--font-size-xs)',
+                                            textDecoration: 'none'
+                                        }}>
                                             источник
                                         </a>
                                     </div>
                                 ) : (
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                                        <LinkIcon size={12} style={{ color: 'var(--color-text-second)', opacity: 0.7 }} />
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: isMobile ? 'flex-start' : 'center', 
+                                        gap: '4px',
+                                        padding: isMobile ? '4px 8px' : '0',
+                                        background: isMobile ? 'rgba(255,255,255,0.05)' : 'transparent',
+                                        borderRadius: isMobile ? '6px' : '0'
+                                    }}>
+                                        <LinkIcon size={12} style={{ color: 'var(--color-text-second)', opacity: 0.7, flexShrink: 0 }} />
                                         <span style={{ fontWeight: '400' }}>Источник: -</span>
                                     </div>
                                 )}
                             </div>
                             <div style={{
                                 display: 'grid',
-                                gridTemplateColumns: '180px 1fr',
+                                gridTemplateColumns: isMobile ? '1fr' : '180px 1fr',
                                 alignItems: 'start',
-                                gap: 'var(--space-md)',
+                                gap: isMobile ? 'var(--space-sm)' : 'var(--space-md)',
                                 padding: '2px 0'
                             }}>
                                 <span style={{
@@ -1283,53 +1410,128 @@ export const ManagerCall: React.FC<{ mode?: 'default' | 'wiki' }> = ({ mode = 'd
                 </div>
 
                 {/* Статусы звонка */}
-                <div className="client-card" style={{ marginTop: '40px' }}>
-                    <div className="call-status-grid">
-                        {CALL_STATUSES.map(({ status, icon: Icon, animation, gradient }, index) => (
-                            <Button
-                                key={status}
-                                variant="secondary"
-                                onClick={() => handleCallStatus(status)}
-                                className="call-status-button"
-                                style={{
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    animationDelay: `${index * 0.05}s`
-                                }}
-                                onMouseEnter={(e) => {
-                                    const button = e.currentTarget;
-                                    const iconEl = button.querySelector('svg');
-                                    if (iconEl) {
-                                        (iconEl as unknown as HTMLElement).style.animation = `${animation} 0.6s ease`;
-                                    }
-                                    // Применяем градиент при наведении
-                                    button.style.background = gradient;
-                                    button.style.color = 'white';
-                                    button.style.borderColor = 'transparent';
-                                    button.style.transform = 'translateY(-2px)';
-                                    button.style.boxShadow = '0 8px 20px rgba(0,0,0,0.2)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    const button = e.currentTarget;
-                                    const iconEl = button.querySelector('svg');
-                                    if (iconEl) {
-                                        (iconEl as unknown as HTMLElement).style.animation = '';
-                                    }
-                                    // Убираем эффекты
-                                    button.style.background = '';
-                                    button.style.color = '';
-                                    button.style.borderColor = '';
-                                    button.style.transform = '';
-                                    button.style.boxShadow = '';
-                                }}
-                            >
-                                <Icon size={14} style={{ transition: 'all 0.3s ease', position: 'relative', zIndex: 1 }} />
-                                <span style={{ position: 'relative', zIndex: 1 }}>{status}</span>
-                            </Button>
-                        ))}
-                    </div>
-                </div>
+                {/* Определение статусов звонка для второй карточки */}
+                {/*
+                  CALL_STATUSES используется только в этом месте, определим его здесь.
+                  Можно вынести выше, если используется в других местах.
+                */}
+                {(() => {
+                    type CallStatus = {
+                        status: string;
+                        icon: React.ElementType;
+                        animation: string;
+                        gradient: string;
+                    };
+                    const CALL_STATUSES: CallStatus[] = [
+                        {
+                            status: 'не дозвон',
+                            icon: PhoneMissed,
+                            animation: 'shakeX',
+                            gradient: 'linear-gradient(90deg, #4b5563 0%, #6b7280 100%)'
+                        },
+                        {
+                            status: 'автоответчик',
+                            icon: Voicemail,
+                            animation: 'bounce',
+                            gradient: 'linear-gradient(90deg, #2563eb 0%, #60a5fa 100%)'
+                        },
+                        {
+                            status: 'питон',
+                            icon: Bot,
+                            animation: 'rubberBand',
+                            gradient: 'linear-gradient(90deg, #d97706 0%, #fbbf24 100%)'
+                        },
+                        {
+                            status: 'срез',
+                            icon: AlertCircle,
+                            animation: 'shakeY',
+                            gradient: 'linear-gradient(90deg, #dc2626 0%, #f87171 100%)'
+                        },
+                        {
+                            status: 'другой человек',
+                            icon: UserX,
+                            animation: 'wobble',
+                            gradient: 'linear-gradient(90deg, #7c3aed 0%, #a78bfa 100%)'
+                        },
+                        {
+                            status: 'перезвон',
+                            icon: PhoneForwarded,
+                            animation: 'pulse',
+                            gradient: 'linear-gradient(90deg, #0ea5e9 0%, #38bdf8 100%)'
+                        },
+                        {
+                            status: 'передать',
+                            icon: UserPlus,
+                            animation: 'tada',
+                            gradient: 'linear-gradient(90deg, #d4af37 0%, #fde68a 100%)'
+                        },
+                        {
+                            status: 'взял код',
+                            icon: CheckCircle2,
+                            animation: 'heartBeat',
+                            gradient: 'linear-gradient(90deg, #059669 0%, #34d399 100%)'
+                        }
+                    ];
+                    return (
+                        <div className="client-card" style={{ marginTop: '40px' }}>
+                            <div className="call-status-grid">
+                                {CALL_STATUSES.map(
+                                    (
+                                        { status, icon: Icon, animation, gradient }: {
+                                            status: string;
+                                            icon: React.ElementType;
+                                            animation: string;
+                                            gradient: string;
+                                        },
+                                        index: number
+                                    ) => (
+                                        <Button
+                                            key={status}
+                                            variant="secondary"
+                                            onClick={() => handleCallStatus(status)}
+                                            className="call-status-button"
+                                            style={{
+                                                position: 'relative',
+                                                overflow: 'hidden',
+                                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                animationDelay: `${index * 0.05}s`
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                const button = e.currentTarget;
+                                                const iconEl = button.querySelector('svg');
+                                                if (iconEl) {
+                                                    (iconEl as unknown as HTMLElement).style.animation = `${animation} 0.6s ease`;
+                                                }
+                                                // Применяем градиент при наведении
+                                                button.style.background = gradient;
+                                                button.style.color = 'white';
+                                                button.style.borderColor = 'transparent';
+                                                button.style.transform = 'translateY(-2px)';
+                                                button.style.boxShadow = '0 8px 20px rgba(0,0,0,0.2)';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                const button = e.currentTarget;
+                                                const iconEl = button.querySelector('svg');
+                                                if (iconEl) {
+                                                    (iconEl as unknown as HTMLElement).style.animation = '';
+                                                }
+                                                // Убираем эффекты
+                                                button.style.background = '';
+                                                button.style.color = '';
+                                                button.style.borderColor = '';
+                                                button.style.transform = '';
+                                                button.style.boxShadow = '';
+                                            }}
+                                        >
+                                            <Icon size={14} style={{ transition: 'all 0.3s ease', position: 'relative', zIndex: 1 }} />
+                                            <span style={{ position: 'relative', zIndex: 1 }}>{status}</span>
+                                        </Button>
+                                    )
+                                )}
+                            </div>
+                        </div>
+                    );
+                })()}
 
                 {/* Модальное окно передачи */}
                 {showTransferModal && (

@@ -5,6 +5,267 @@
     margin-top: -50px !important;
 }
 
+/* MOBILE FIRST RESPONSIVE DESIGN */
+
+/* Very small screens (320px - 479px) */
+@media (max-width: 479px) {
+    .main-container.call-page {
+        margin-top: -20px !important;
+        padding: 0;
+    }
+
+    .space-y-6 > * + * {
+        margin-top: 8px;
+    }
+
+    .client-card {
+        padding: 12px !important;
+        margin-bottom: 8px;
+        border-radius: 12px;
+        box-shadow: var(--shadow-card);
+    }
+
+    /* Mobile field rows - stack vertically */
+    .field-row {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        padding: 12px;
+        border-left: 3px solid var(--color-accent);
+        margin-bottom: 6px;
+    }
+
+    .field-label {
+        justify-content: flex-start;
+        font-weight: 600;
+        color: var(--color-text-main);
+        font-size: 14px;
+    }
+
+    .field-value-container {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .field-value {
+        font-size: 14px;
+        line-height: 1.3;
+    }
+
+    .field-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 6px;
+    }
+
+    /* Mobile-optimized phone grid */
+    .phones-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+        gap: 6px;
+        margin: 8px 0;
+    }
+
+    /* Mobile status buttons - stack vertically */
+    .status-buttons-mobile {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .status-btn {
+        min-height: 48px;
+        padding: 12px;
+        font-size: 14px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    /* Modal adjustments for mobile */
+    .modal-overlay-mobile {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        z-index: 1000;
+        padding: 0;
+    }
+
+    .modal-content-mobile {
+        background: var(--color-bg-card);
+        border-radius: 16px 16px 0 0;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 20px;
+        animation: slideUpModal 300ms ease-out;
+    }
+
+    @keyframes slideUpModal {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+
+    /* Mobile table optimizations */
+    .table-container-mobile {
+        overflow-x: auto;
+        margin: 0 -12px;
+        padding: 0 12px;
+        border-radius: 0;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-container-mobile table {
+        width: max-content;
+        min-width: 100%;
+        font-size: 13px;
+    }
+
+    .table-container-mobile th,
+    .table-container-mobile td {
+        padding: 6px 4px;
+        white-space: nowrap;
+        min-width: 60px;
+    }
+
+    /* Hide less important columns on mobile */
+    .hide-mobile {
+        display: none !important;
+    }
+
+    /* Mobile client info layout */
+    .client-info-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .client-name-mobile {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--color-text-main);
+        line-height: 1.2;
+        margin-bottom: 4px;
+    }
+
+    .client-details-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 13px;
+        color: var(--color-text-second);
+    }
+
+    /* Compact action buttons */
+    .action-buttons-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+        margin-top: 12px;
+    }
+
+    .action-buttons-mobile .btn {
+        width: 100%;
+        min-height: 44px;
+        padding: 12px;
+        font-size: 14px;
+        border-radius: 10px;
+    }
+}
+
+/* Mobile phones (480px - 767px) */
+@media (min-width: 480px) and (max-width: 767px) {
+    .main-container.call-page {
+        margin-top: -30px !important;
+        padding: 0 8px;
+    }
+
+    .space-y-6 > * + * {
+        margin-top: 12px;
+    }
+
+    .client-card {
+        padding: 16px !important;
+        margin-bottom: 12px;
+    }
+
+    /* Improved field rows for larger mobile screens */
+    .field-row {
+        display: grid;
+        grid-template-columns: 80px 1fr auto;
+        align-items: center;
+        gap: 10px;
+        padding: 12px;
+        border-left: 3px solid var(--color-accent);
+    }
+
+    /* Phone grid with more columns */
+    .phones-container {
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+        gap: 8px;
+    }
+
+    /* Status buttons in 2 columns */
+    .status-buttons-mobile {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    /* Action buttons side by side */
+    .action-buttons-mobile {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .action-buttons-mobile .btn {
+        flex: 1;
+        min-width: 120px;
+        width: auto;
+    }
+}
+
+/* Tablets (768px - 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .main-container.call-page {
+        margin-top: -40px !important;
+        padding: 0 16px;
+    }
+
+    .client-card {
+        padding: 20px !important;
+    }
+
+    /* Status buttons in 3 columns */
+    .status-buttons-mobile {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    /* Field rows remain grid-based */
+    .field-row {
+        grid-template-columns: 90px 1fr auto;
+        gap: 12px;
+        padding: 12px;
+    }
+}
+
 /* General animations and transitions */
 @keyframes fadeIn {
     from {
@@ -342,6 +603,20 @@
     gap: var(--space-md);
 }
 
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .call-status-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .call-status-grid {
+        gap: 6px;
+    }
+}
+
 .call-status-button {
     display: flex;
     align-items: center;
@@ -350,6 +625,32 @@
     transition: all 0.2s ease;
     min-height: 50px;
     padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* Mobile button adjustments */
+@media (max-width: 768px) {
+    .call-status-button {
+        min-height: 48px;
+        padding: 10px 8px;
+        font-size: 0.8rem;
+        flex-direction: column;
+        gap: 4px;
+        white-space: normal;
+        text-overflow: ellipsis;
+    }
+}
+
+@media (max-width: 480px) {
+    .call-status-button {
+        min-height: 44px;
+        padding: 8px 6px;
+        font-size: 0.75rem;
+    }
 }
 
 .call-status-button:hover {
@@ -375,6 +676,106 @@
     font-weight: var(--font-weight-medium);
     color: var(--color-text-second);
     margin-bottom: var(--space-sm);
+}
+
+/* Mobile modal adjustments */
+@media (max-width: 768px) {
+    .modal-content {
+        max-width: calc(100vw - 20px) !important;
+        width: calc(100vw - 20px) !important;
+        margin: 10px !important;
+        padding: 16px !important;
+        border-radius: 12px !important;
+    }
+
+    .modal-title {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+
+    .close-modal {
+        top: 8px !important;
+        right: 8px !important;
+        width: 32px !important;
+        height: 32px !important;
+    }
+
+    .input-field, select {
+        font-size: 14px !important;
+        min-height: 44px !important;
+    }
+}
+
+/* Field row responsive adjustments */
+@media (max-width: 768px) {
+    .field-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 8px 0;
+    }
+
+    .field-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--color-text-second);
+    }
+
+    .field-value-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .field-value {
+        font-size: 0.9rem;
+        word-break: break-word;
+    }
+
+    .field-actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 4px;
+    }
+}
+
+/* Call button responsive */
+.call-button {
+    transition: all 0.2s ease;
+    touch-action: manipulation;
+}
+
+@media (max-width: 768px) {
+    .call-button {
+        width: 32px !important;
+        height: 32px !important;
+        min-width: 32px;
+        min-height: 32px;
+        border-radius: 6px;
+        padding: 0;
+    }
+}
+
+/* Company header responsive */
+@media (max-width: 768px) {
+    .company-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .company-title {
+        font-size: 1.1rem !important;
+        line-height: 1.2;
+    }
+
+    .company-meta {
+        width: 100%;
+    }
 }
 
 /* Manager Call Page Styles - использует только переменные из index.css */

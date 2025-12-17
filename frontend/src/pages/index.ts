@@ -10,3 +10,4 @@ export { Mamonty } from './Mamonty';
 export { Katka } from './Katka';
 export { TelegramAuth } from './TelegramAuth';
 export { Wiki } from './Wiki';
+export { default as MobileTestPage } from './MobileTestPage';

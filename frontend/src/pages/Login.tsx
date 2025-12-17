@@ -56,7 +56,7 @@ export const Login: React.FC = () => {
                     if (user.role === 'admin') {
                         navigate('/admin/users');
                     } else {
-                        navigate('/call');
+                        navigate('/profile');
                     }
                 } else {
                     toast.error('Ошибка получения данных пользователя');
