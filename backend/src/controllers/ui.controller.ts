@@ -162,6 +162,10 @@ const ensureUiTables = async () => {
     await pool.query(`
         ALTER TABLE status_buttons ADD COLUMN IF NOT EXISTS color_active VARCHAR(20) NOT NULL DEFAULT '#1d4ed8';
         ALTER TABLE status_buttons ADD COLUMN IF NOT EXISTS icon VARCHAR(50) NOT NULL DEFAULT 'check-circle-2';
+        ALTER TABLE status_buttons ADD COLUMN IF NOT EXISTS icon_color VARCHAR(20) NOT NULL DEFAULT '#ffffff';
+        ALTER TABLE status_buttons ADD COLUMN IF NOT EXISTS icon_color_hover VARCHAR(20);
+        ALTER TABLE status_buttons ADD COLUMN IF NOT EXISTS border_color VARCHAR(20) NOT NULL DEFAULT 'transparent';
+        ALTER TABLE status_buttons ADD COLUMN IF NOT EXISTS border_color_hover VARCHAR(20) NOT NULL DEFAULT 'transparent';
     `);
 
     const buttonsCount = await pool.query('SELECT COUNT(*) FROM status_buttons');
@@ -175,6 +179,10 @@ const ensureUiTables = async () => {
             ON CONFLICT (page, status_value) DO NOTHING;
             UPDATE status_buttons SET color_active = '#1d4ed8' WHERE color_active IS NULL;
             UPDATE status_buttons SET icon = 'check-circle-2' WHERE icon IS NULL;
+            UPDATE status_buttons SET icon_color = '#ffffff' WHERE icon_color IS NULL;
+            UPDATE status_buttons SET icon_color_hover = icon_color WHERE icon_color_hover IS NULL;
+            UPDATE status_buttons SET border_color = 'transparent' WHERE border_color IS NULL;
+            UPDATE status_buttons SET border_color_hover = 'transparent' WHERE border_color_hover IS NULL;
         `);
     }
 
@@ -451,13 +459,17 @@ export const getStatusButtons = asyncHandler(async (req: AuthRequest, res: Respo
 
 export const createStatusButton = asyncHandler(async (req: AuthRequest, res: Response) => {
     await ensureUiTables();
-    const { page, label, status_value, color, color_active, icon, action = 'set-status', position } = req.body as {
+    const { page, label, status_value, color, color_active, icon, icon_color, icon_color_hover, border_color, border_color_hover, action = 'set-status', position } = req.body as {
         page: string;
         label: string;
         status_value?: string;
         color?: string;
         color_active?: string;
         icon?: string;
+        icon_color?: string;
+        icon_color_hover?: string;
+        border_color?: string;
+        border_color_hover?: string;
         action?: string;
         position?: number;
     };
@@ -473,6 +485,10 @@ export const createStatusButton = asyncHandler(async (req: AuthRequest, res: Res
     const normalizedAction = (action || 'set-status').trim().toLowerCase();
     const normalizedIcon = (icon || 'check-circle-2').trim();
     const activeColor = (color_active || color || '#2563eb').trim();
+    const iconColor = (icon_color || '#ffffff').trim();
+    const iconColorHover = (icon_color_hover || iconColor || '#ffffff').trim();
+    const borderColor = (border_color || 'transparent').trim();
+    const borderColorHover = (border_color_hover || borderColor || 'transparent').trim();
 
     try {
         validateStatusPayload(trimmedPage, normalizedAction);
@@ -485,19 +501,23 @@ export const createStatusButton = asyncHandler(async (req: AuthRequest, res: Res
         : Number((await pool.query('SELECT COALESCE(MAX(position), 0) + 1 AS pos FROM status_buttons WHERE page = $1', [trimmedPage])).rows[0]?.pos || 0);
 
     const result = await pool.query(
-          `INSERT INTO status_buttons(page, label, status_value, color, color_active, icon, action, position, created_by, updated_by)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9)
-         ON CONFLICT (page, status_value) DO UPDATE SET
+        `INSERT INTO status_buttons(page, label, status_value, color, color_active, icon, icon_color, icon_color_hover, border_color, border_color_hover, action, position, created_by, updated_by)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13)
+        ON CONFLICT (page, status_value) DO UPDATE SET
             label = EXCLUDED.label,
             color = EXCLUDED.color,
-                color_active = EXCLUDED.color_active,
-                icon = EXCLUDED.icon,
+            color_active = EXCLUDED.color_active,
+            icon = EXCLUDED.icon,
+            icon_color = EXCLUDED.icon_color,
+            icon_color_hover = EXCLUDED.icon_color_hover,
+            border_color = EXCLUDED.border_color,
+            border_color_hover = EXCLUDED.border_color_hover,
             action = EXCLUDED.action,
             position = EXCLUDED.position,
             updated_by = EXCLUDED.updated_by,
             updated_at = NOW()
-         RETURNING *`,
-          [trimmedPage, trimmedLabel, trimmedValue, color || '#2563eb', activeColor, normalizedIcon, normalizedAction, nextPosition, userId]
+        RETURNING *`,
+        [trimmedPage, trimmedLabel, trimmedValue, color || '#2563eb', activeColor, normalizedIcon, iconColor, iconColorHover, borderColor, borderColorHover, normalizedAction, nextPosition, userId]
     );
 
     res.status(201).json({ success: true, button: result.rows[0] });
@@ -506,13 +526,17 @@ export const createStatusButton = asyncHandler(async (req: AuthRequest, res: Res
 export const updateStatusButton = asyncHandler(async (req: AuthRequest, res: Response) => {
     await ensureUiTables();
     const { id } = req.params;
-    const { page, label, status_value, color, color_active, icon, action, position } = req.body as {
+    const { page, label, status_value, color, color_active, icon, icon_color, icon_color_hover, border_color, border_color_hover, action, position } = req.body as {
         page?: string;
         label?: string;
         status_value?: string;
         color?: string;
         color_active?: string;
         icon?: string;
+        icon_color?: string;
+        icon_color_hover?: string;
+        border_color?: string;
+        border_color_hover?: string;
         action?: string;
         position?: number;
     };
@@ -541,11 +565,15 @@ export const updateStatusButton = asyncHandler(async (req: AuthRequest, res: Res
             color = COALESCE($4, color),
             color_active = COALESCE($5, color_active),
             icon = COALESCE($6, icon),
-            action = $7,
-            position = COALESCE($8, position),
-            updated_by = $9,
+            icon_color = COALESCE($7, icon_color),
+            icon_color_hover = COALESCE($8, icon_color_hover),
+            border_color = COALESCE($9, border_color),
+            border_color_hover = COALESCE($10, border_color_hover),
+            action = $11,
+            position = COALESCE($12, position),
+            updated_by = $13,
             updated_at = NOW()
-         WHERE id = $10
+         WHERE id = $14
          RETURNING *`,
         [
             nextPage,
@@ -554,6 +582,10 @@ export const updateStatusButton = asyncHandler(async (req: AuthRequest, res: Res
             color || null,
             color_active || null,
             icon || null,
+            icon_color || null,
+            icon_color_hover || null,
+            border_color || null,
+            border_color_hover || null,
             nextAction,
             Number.isFinite(position) ? Number(position) : null,
             userId,

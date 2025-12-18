@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Eye, EyeOff, Megaphone, Sparkles, SlidersHorizontal, Clock3, Users, Target, Repeat, Play, Pause, Palette, Grid3x3, Plus, Trash2, Columns, Eraser } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Eye, EyeOff, Megaphone, Sparkles, SlidersHorizontal, Clock3, Users, Target, Repeat, Play, Pause, Palette, Grid3x3, Plus, Trash2, Columns, Eraser, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button, Input, Modal, Textarea } from '../components/ui';
 import { Announcement, AnnouncementTargetType, AnnouncementType, PageVisibilityRule, StatusAction, StatusButton, User } from '../types';
 import { statisticsService, uiService, userService } from '../services';
 import { useUiStore } from '../store/uiStore';
+import { STATUS_BUTTON_ICON_OPTIONS, resolveStatusButtonIcon } from '../utils/statusButtonIcons';
 
 const pageOptions = [
     { key: 'call', label: 'Звонить' },
@@ -63,11 +64,25 @@ export const AdminPanel: React.FC = () => {
     const [form, setForm] = useState(defaultAnnouncement);
     const [users, setUsers] = useState<User[]>([]);
     const [statusPage, setStatusPage] = useState<'call' | 'wiki'>('call');
-    const [newButton, setNewButton] = useState<{ label: string; color: string; color_active: string; icon: string; action: StatusAction }>({
+    const [newButton, setNewButton] = useState<{
+        label: string;
+        color: string;
+        color_active: string;
+        icon: string;
+        icon_color: string;
+        icon_color_hover: string;
+        border_color: string;
+        border_color_hover: string;
+        action: StatusAction;
+    }>({
         label: '',
         color: '#2563eb',
         color_active: '#1d4ed8',
         icon: 'check-circle-2',
+        icon_color: '#ffffff',
+        icon_color_hover: '#ffffff',
+        border_color: 'transparent',
+        border_color_hover: 'transparent',
         action: 'set-status'
     });
     const [resetScope, setResetScope] = useState<'day' | 'period' | 'all'>('day');
@@ -251,7 +266,17 @@ export const AdminPanel: React.FC = () => {
         try {
             await createStatusButton({ page: statusPage, ...newButton });
             await fetchStatusButtons(statusPage);
-            setNewButton({ label: '', color: '#2563eb', color_active: '#1d4ed8', icon: 'check-circle-2', action: 'set-status' });
+            setNewButton({
+                label: '',
+                color: '#2563eb',
+                color_active: '#1d4ed8',
+                icon: 'check-circle-2',
+                icon_color: '#ffffff',
+                icon_color_hover: '#ffffff',
+                border_color: 'transparent',
+                border_color_hover: 'transparent',
+                action: 'set-status'
+            });
             toast.success('Кнопка добавлена');
         } catch (error: any) {
             console.error('handleAddStatusButton error', error);
@@ -331,16 +356,98 @@ export const AdminPanel: React.FC = () => {
         { value: 'transfer', label: 'Открывает передачу' }
     ];
 
-    const iconOptions: { value: string; label: string }[] = [
-        { value: 'phone-missed', label: 'Пропущено' },
-        { value: 'voicemail', label: 'Автоответчик' },
-        { value: 'bot', label: 'Бот' },
-        { value: 'alert-circle', label: 'Срез' },
-        { value: 'user-x', label: 'Другой человек' },
-        { value: 'phone-forwarded', label: 'Перезвон' },
-        { value: 'user-plus', label: 'Передать' },
-        { value: 'check-circle-2', label: 'Успех' }
-    ];
+    const IconPicker: React.FC<{ value: string; onChange: (next: string) => void }> = ({ value, onChange }) => {
+        const [open, setOpen] = useState(false);
+        const rootRef = useRef<HTMLDivElement | null>(null);
+
+        useEffect(() => {
+            const handler = (e: MouseEvent) => {
+                if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+                    setOpen(false);
+                }
+            };
+            document.addEventListener('click', handler);
+            return () => document.removeEventListener('click', handler);
+        }, []);
+
+        const current = STATUS_BUTTON_ICON_OPTIONS.find((o) => o.value === (value as any));
+        const CurrentIcon = resolveStatusButtonIcon({ iconKey: value, fallbackIconKey: 'check-circle-2' });
+        const currentLabel = current?.label || value || 'Иконка';
+
+        return (
+            <div ref={rootRef} style={{ position: 'relative' }}>
+                <button
+                    type="button"
+                    className="input-field"
+                    onClick={() => setOpen((v) => !v)}
+                    style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: '10px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+                        <CurrentIcon size={16} style={{ flexShrink: 0 }} />
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{currentLabel}</span>
+                    </span>
+                    <ChevronDown size={16} style={{ opacity: 0.7, flexShrink: 0 }} />
+                </button>
+
+                {open && (
+                    <div
+                        style={{
+                            position: 'absolute',
+                            top: 'calc(100% + 6px)',
+                            left: 0,
+                            right: 0,
+                            zIndex: 50,
+                            border: '1px solid var(--color-border)',
+                            borderRadius: '14px',
+                            background: 'var(--color-bg-card)',
+                            boxShadow: 'var(--shadow-lg)',
+                            padding: '10px',
+                            maxHeight: '260px',
+                            overflow: 'auto'
+                        }}
+                    >
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+                            {STATUS_BUTTON_ICON_OPTIONS.map((opt) => (
+                                <button
+                                    key={opt.value}
+                                    type="button"
+                                    onClick={() => {
+                                        onChange(opt.value);
+                                        setOpen(false);
+                                    }}
+                                    style={{
+                                        border: opt.value === value ? '1px solid var(--color-accent)' : '1px solid var(--color-border)',
+                                        background: opt.value === value ? 'rgba(37, 99, 235, 0.10)' : 'transparent',
+                                        color: 'var(--color-text-main)',
+                                        borderRadius: '12px',
+                                        padding: '10px 8px',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        gap: '6px'
+                                    }}
+                                    title={opt.label}
+                                >
+                                    <opt.Icon size={18} />
+                                    <span style={{ fontSize: '11px', color: 'var(--color-text-second)', lineHeight: 1.1, textAlign: 'center' }}>
+                                        {opt.label}
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </div>
+        );
+    };
 
     const currentButtons: StatusButton[] = statusButtons[statusPage] || [];
     const currentColumns = statusColumns[statusPage] || 4;
@@ -595,7 +702,7 @@ export const AdminPanel: React.FC = () => {
                                         </div>
                                     </div>
                                     <div>
-                                        <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Цвет при нажатии</label>
+                                        <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Цвет при наведении (hover)</label>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                             <input
                                                 type="color"
@@ -616,16 +723,78 @@ export const AdminPanel: React.FC = () => {
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', alignItems: 'center' }}>
                                     <div>
-                                        <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Иконка</label>
-                                        <select
+                                        <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Цвет иконки</label>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <input
+                                                type="color"
+                                                defaultValue={btn.icon_color || '#ffffff'}
+                                                key={`icon-color-${btn.id}-${btn.icon_color || '#ffffff'}`}
+                                                onBlur={(e) => {
+                                                    const value = e.target.value;
+                                                    if (value && value !== btn.icon_color) {
+                                                        handleStatusUpdate(btn.id, { icon_color: value });
+                                                    }
+                                                }}
+                                                style={{ width: '52px', height: '36px', borderRadius: '10px', border: '1px solid var(--color-border)', background: 'var(--color-bg)' }}
+                                            />
+                                            <span style={{ fontFamily: 'monospace', fontSize: '12px', color: 'var(--color-text-second)' }}>{btn.icon_color || '#ffffff'}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Цвет иконки (hover)</label>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <input
+                                                type="color"
+                                                defaultValue={btn.icon_color_hover || btn.icon_color || '#ffffff'}
+                                                key={`icon-color-hover-${btn.id}-${btn.icon_color_hover || btn.icon_color || '#ffffff'}`}
+                                                onBlur={(e) => {
+                                                    const value = e.target.value;
+                                                    if (value && value !== btn.icon_color_hover) {
+                                                        handleStatusUpdate(btn.id, { icon_color_hover: value });
+                                                    }
+                                                }}
+                                                style={{ width: '52px', height: '36px', borderRadius: '10px', border: '1px solid var(--color-border)', background: 'var(--color-bg)' }}
+                                            />
+                                            <span style={{ fontFamily: 'monospace', fontSize: '12px', color: 'var(--color-text-second)' }}>{btn.icon_color_hover || btn.icon_color || '#ffffff'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', alignItems: 'center' }}>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Рамка</label>
+                                        <input
                                             className="input-field"
-                                            defaultValue={btn.icon || 'check-circle-2'}
-                                            onChange={(e) => handleStatusUpdate(btn.id, { icon: e.target.value })}
-                                        >
-                                            {iconOptions.map((opt) => (
-                                                <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                            ))}
-                                        </select>
+                                            defaultValue={btn.border_color || 'transparent'}
+                                            key={`border-${btn.id}-${btn.border_color || 'transparent'}`}
+                                            onBlur={(e) => {
+                                                const value = e.target.value.trim() || 'transparent';
+                                                if (value !== (btn.border_color || 'transparent')) {
+                                                    handleStatusUpdate(btn.id, { border_color: value });
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Рамка (hover)</label>
+                                        <input
+                                            className="input-field"
+                                            defaultValue={btn.border_color_hover || btn.border_color || 'transparent'}
+                                            key={`border-hover-${btn.id}-${btn.border_color_hover || btn.border_color || 'transparent'}`}
+                                            onBlur={(e) => {
+                                                const value = e.target.value.trim() || 'transparent';
+                                                if (value !== (btn.border_color_hover || btn.border_color || 'transparent')) {
+                                                    handleStatusUpdate(btn.id, { border_color_hover: value });
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', alignItems: 'center' }}>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Иконка</label>
+                                        <IconPicker value={btn.icon || 'check-circle-2'} onChange={(v) => handleStatusUpdate(btn.id, { icon: v })} />
                                     </div>
                                     <div>
                                         <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Действие</label>
@@ -662,7 +831,7 @@ export const AdminPanel: React.FC = () => {
                         />
                     </div>
                     <div>
-                        <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Цвет при нажатии</label>
+                        <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Цвет при наведении (hover)</label>
                         <input
                             type="color"
                             value={newButton.color_active}
@@ -672,16 +841,38 @@ export const AdminPanel: React.FC = () => {
                     </div>
                     <div>
                         <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Иконка</label>
-                        <select
-                            className="input-field"
-                            value={newButton.icon}
-                            onChange={(e) => setNewButton((prev) => ({ ...prev, icon: e.target.value }))}
-                        >
-                            {iconOptions.map((opt) => (
-                                <option key={opt.value} value={opt.value}>{opt.label}</option>
-                            ))}
-                        </select>
+                        <IconPicker value={newButton.icon} onChange={(v) => setNewButton((prev) => ({ ...prev, icon: v }))} />
                     </div>
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Цвет иконки</label>
+                        <input
+                            type="color"
+                            value={newButton.icon_color}
+                            onChange={(e) => setNewButton((prev) => ({ ...prev, icon_color: e.target.value }))}
+                            style={{ width: '100%', height: '42px', borderRadius: '10px', border: '1px solid var(--color-border)', background: 'var(--color-bg)' }}
+                        />
+                    </div>
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Цвет иконки (hover)</label>
+                        <input
+                            type="color"
+                            value={newButton.icon_color_hover}
+                            onChange={(e) => setNewButton((prev) => ({ ...prev, icon_color_hover: e.target.value }))}
+                            style={{ width: '100%', height: '42px', borderRadius: '10px', border: '1px solid var(--color-border)', background: 'var(--color-bg)' }}
+                        />
+                    </div>
+                    <Input
+                        label="Рамка"
+                        placeholder="transparent или #RRGGBB"
+                        value={newButton.border_color}
+                        onChange={(e) => setNewButton((prev) => ({ ...prev, border_color: e.target.value }))}
+                    />
+                    <Input
+                        label="Рамка (hover)"
+                        placeholder="transparent или #RRGGBB"
+                        value={newButton.border_color_hover}
+                        onChange={(e) => setNewButton((prev) => ({ ...prev, border_color_hover: e.target.value }))}
+                    />
                     <div>
                         <label style={{ display: 'block', marginBottom: '6px', color: 'var(--color-text-second)', fontSize: '12px' }}>Действие</label>
                         <select

@@ -20,7 +20,7 @@ import logger from './utils/logger';
 dotenv.config();
 
 const app: Application = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 // Database configured
 
 // Middleware

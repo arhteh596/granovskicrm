@@ -136,6 +136,10 @@ export interface StatusButton {
     color: string;
     color_active?: string;
     icon?: string;
+    icon_color?: string;
+    icon_color_hover?: string;
+    border_color?: string;
+    border_color_hover?: string;
     action: StatusAction;
     position: number;
     is_active?: boolean;

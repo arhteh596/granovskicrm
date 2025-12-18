@@ -330,12 +330,38 @@ export const uiService = {
         return response.data;
     },
 
-    createStatusButton: async (payload: { page: string; label: string; status_value?: string; color?: string; action?: string; position?: number; }) => {
+    createStatusButton: async (payload: {
+        page: string;
+        label: string;
+        status_value?: string;
+        color?: string;
+        color_active?: string;
+        icon?: string;
+        icon_color?: string;
+        icon_color_hover?: string;
+        border_color?: string;
+        border_color_hover?: string;
+        action?: string;
+        position?: number;
+    }) => {
         const response = await apiClient.post('/ui/status-buttons', payload);
         return response.data;
     },
 
-    updateStatusButton: async (id: number, payload: { page?: string; label?: string; status_value?: string; color?: string; action?: string; position?: number; }) => {
+    updateStatusButton: async (id: number, payload: {
+        page?: string;
+        label?: string;
+        status_value?: string;
+        color?: string;
+        color_active?: string;
+        icon?: string;
+        icon_color?: string;
+        icon_color_hover?: string;
+        border_color?: string;
+        border_color_hover?: string;
+        action?: string;
+        position?: number;
+    }) => {
         const response = await apiClient.put(`/ui/status-buttons/${id}`, payload);
         return response.data;
     },

@@ -47,11 +47,11 @@ RUN mkdir -p ./telegram-sessions && chown node:node ./telegram-sessions
 USER node
 
 # Открываем порт
-EXPOSE 5001
+EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD node -e "require('http').get('http://localhost:5001/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+    CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
 
-# Запускаем приложение
-CMD ["node", "dist/server.js"]
+# Запускаем миграции (idempotent) и затем приложение
+CMD ["sh", "-c", "node dist/db/migrate.js && node dist/server.js"]

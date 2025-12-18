@@ -632,6 +632,18 @@
     overflow: hidden;
 }
 
+/* Customizable status buttons (from admin settings / DB)
+   Uses CSS variables set inline on each button.
+*/
+.call-status-button-custom {
+    background: var(--sb-bg) !important;
+    border: 1px solid var(--sb-border, transparent) !important;
+}
+
+.call-status-button-custom svg {
+    color: var(--sb-icon, #ffffff) !important;
+}
+
 /* Mobile button adjustments */
 @media (max-width: 768px) {
     .call-status-button {
@@ -656,6 +668,15 @@
 .call-status-button:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
+}
+
+.call-status-button-custom:hover {
+    background: var(--sb-bg-hover, var(--sb-bg)) !important;
+    border-color: var(--sb-border-hover, var(--sb-border, transparent)) !important;
+}
+
+.call-status-button-custom:hover svg {
+    color: var(--sb-icon-hover, var(--sb-icon, #ffffff)) !important;
 }
 
 /* Modal styles */

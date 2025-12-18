@@ -9,10 +9,11 @@
     },
     "scripts": {
         "dev": "nodemon --exec ts-node src/server.ts",
-        "build": "tsc && node -e \"require('fs').cpSync('src/telegram/scripts', 'dist/telegram/scripts', {recursive: true})\"",
+        "build": "tsc && node -e \"const fs=require('fs'); const path=require('path'); const cp=(s,d)=>{ if(!fs.existsSync(s)) return; fs.mkdirSync(path.dirname(d),{recursive:true}); fs.cpSync(s,d,{recursive:true}); }; cp('src/telegram/scripts','dist/telegram/scripts'); cp('src/db/schema.sql','dist/db/schema.sql'); cp('src/db/migrations','dist/db/migrations'); cp('migrations','dist/migrations');\"",
         "start": "node dist/server.js",
         "vercel-build": "npm run build",
-        "db:migrate": "node -r ts-node/register src/db/migrate.ts",
+        "db:migrate": "node dist/db/migrate.js",
+        "db:migrate:dev": "node -r ts-node/register src/db/migrate.ts",
         "db:init:remote": "node scripts/init-remote-db.js"
     },
     "keywords": [

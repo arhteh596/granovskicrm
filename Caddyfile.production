@@ -1,10 +1,5 @@
 {
-	"$schema": "https://caddyserver.com/docs/caddyfile",
-	"servers": {
-		"https://granovski-crm.site": {
-			"reverse_proxy": "http://frontend:80"
-		}
-	}
+	email admin@granovski-crm.site
 }
 
 granovski-crm.site, www.granovski-crm.site {

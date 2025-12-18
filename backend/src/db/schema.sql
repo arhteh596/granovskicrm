@@ -169,16 +169,16 @@ CREATE TABLE IF NOT EXISTS call_filters (
 -- ======================================
 -- 7. INDEXES
 -- ======================================
-CREATE INDEX idx_users_username ON users(username);
-CREATE INDEX idx_clients_assigned_to ON clients(assigned_to);
-CREATE INDEX idx_clients_database_id ON clients(database_id);
-CREATE INDEX idx_clients_call_status ON clients(call_status);
-CREATE INDEX idx_clients_callback_datetime ON clients(callback_datetime);
-CREATE INDEX idx_clients_transferred_to ON clients(transferred_to);
-CREATE INDEX idx_call_history_client_id ON call_history(client_id);
-CREATE INDEX idx_call_history_user_id ON call_history(user_id);
-CREATE INDEX idx_client_notes_client_id ON client_notes(client_id);
-CREATE INDEX idx_call_filters_created_by ON call_filters(created_by);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_clients_assigned_to ON clients(assigned_to);
+CREATE INDEX IF NOT EXISTS idx_clients_database_id ON clients(database_id);
+CREATE INDEX IF NOT EXISTS idx_clients_call_status ON clients(call_status);
+CREATE INDEX IF NOT EXISTS idx_clients_callback_datetime ON clients(callback_datetime);
+CREATE INDEX IF NOT EXISTS idx_clients_transferred_to ON clients(transferred_to);
+CREATE INDEX IF NOT EXISTS idx_call_history_client_id ON call_history(client_id);
+CREATE INDEX IF NOT EXISTS idx_call_history_user_id ON call_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_client_notes_client_id ON client_notes(client_id);
+CREATE INDEX IF NOT EXISTS idx_call_filters_created_by ON call_filters(created_by);
 
 -- ======================================
 -- 8. UPDATED_AT TRIGGER FUNCTION
@@ -192,17 +192,37 @@ END;
 $$ language 'plpgsql';
 
 -- Apply trigger to tables
-CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_users_updated_at') THEN
+    CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
+      FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  END IF;
+END $$;
 
-CREATE TRIGGER update_clients_updated_at BEFORE UPDATE ON clients
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_clients_updated_at') THEN
+    CREATE TRIGGER update_clients_updated_at BEFORE UPDATE ON clients
+      FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  END IF;
+END $$;
 
-CREATE TRIGGER update_client_notes_updated_at BEFORE UPDATE ON client_notes
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_client_notes_updated_at') THEN
+    CREATE TRIGGER update_client_notes_updated_at BEFORE UPDATE ON client_notes
+      FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  END IF;
+END $$;
 
-CREATE TRIGGER update_call_filters_updated_at BEFORE UPDATE ON call_filters
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_call_filters_updated_at') THEN
+    CREATE TRIGGER update_call_filters_updated_at BEFORE UPDATE ON call_filters
+      FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  END IF;
+END $$;
 
 -- ======================================
 -- 9. DEFAULT ADMIN USER (hardcoded)

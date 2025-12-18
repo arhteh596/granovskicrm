@@ -13,6 +13,7 @@ import { TelegramAuthForm } from '../components/TelegramAuth';
 import { clientService, userService } from '../services';
 import { Client, User } from '../types';
 import { useUiStore } from '../store/uiStore';
+import { resolveStatusButtonIcon } from '../utils/statusButtonIcons';
 import './manager-call.css';
 
 // Адаптивный хук
@@ -34,26 +35,25 @@ const useResponsive = () => {
 };
 
 const DEFAULT_STATUS_BUTTONS = [
-    { status: 'не дозвон', color: '#4b5563', action: 'set-status' as const },
-    { status: 'автоответчик', color: '#2563eb', action: 'set-status' as const },
-    { status: 'питон', color: '#d97706', action: 'set-status' as const },
-    { status: 'срез', color: '#dc2626', action: 'set-status' as const },
-    { status: 'другой человек', color: '#7c3aed', action: 'set-status' as const },
-    { status: 'перезвон', color: '#0ea5e9', action: 'callback' as const },
-    { status: 'передать', color: '#d4af37', action: 'transfer' as const },
-    { status: 'взял код', color: '#059669', action: 'set-status' as const }
+    { status: 'не дозвон', color: '#4b5563', icon: 'phone-missed', action: 'set-status' as const },
+    { status: 'автоответчик', color: '#2563eb', icon: 'voicemail', action: 'set-status' as const },
+    { status: 'питон', color: '#d97706', icon: 'bot', action: 'set-status' as const },
+    { status: 'срез', color: '#dc2626', icon: 'alert-circle', action: 'set-status' as const },
+    { status: 'другой человек', color: '#7c3aed', icon: 'user-x', action: 'set-status' as const },
+    { status: 'перезвон', color: '#0ea5e9', icon: 'phone-forwarded', action: 'callback' as const },
+    { status: 'передать', color: '#d4af37', icon: 'user-plus', action: 'transfer' as const },
+    { status: 'взял код', color: '#059669', icon: 'check-circle-2', action: 'set-status' as const }
 ];
 
-const STATUS_ICON_MAP: Record<string, any> = {
-    'не дозвон': PhoneMissed,
-    'автоответчик': Voicemail,
-    'питон': Bot,
-    'срез': AlertCircle,
-    'другой человек': UserX,
-    'перезвон': PhoneForwarded,
-    'передать': UserPlus,
-    'взял код': CheckCircle2,
-    default: CheckCircle2
+const STATUS_VALUE_FALLBACK_ICON_KEY: Record<string, string> = {
+    'не дозвон': 'phone-missed',
+    'автоответчик': 'voicemail',
+    'питон': 'bot',
+    'срез': 'alert-circle',
+    'другой человек': 'user-x',
+    'перезвон': 'phone-forwarded',
+    'передать': 'user-plus',
+    'взял код': 'check-circle-2'
 };
 
 // Извлекаем список источников из *_data полей разного формата
@@ -246,6 +246,7 @@ export const ManagerCall: React.FC<{ mode?: 'default' | 'wiki' }> = ({ mode = 'd
             label: btn.status,
             status_value: btn.status,
             color: btn.color,
+            icon: btn.icon,
             action: btn.action,
             position: idx + 1
         }));
@@ -493,7 +494,10 @@ export const ManagerCall: React.FC<{ mode?: 'default' | 'wiki' }> = ({ mode = 'd
                             }}
                         >
                             {statusButtonList.map((btn) => {
-                                const Icon = STATUS_ICON_MAP[btn.status_value] || STATUS_ICON_MAP.default;
+                                const Icon = resolveStatusButtonIcon({
+                                    iconKey: (btn as any).icon,
+                                    fallbackIconKey: STATUS_VALUE_FALLBACK_ICON_KEY[btn.status_value]
+                                });
                                 return (
                                     <Button
                                         key={`${btn.page}-${btn.id}-${btn.status_value}`}
@@ -509,11 +513,17 @@ export const ManagerCall: React.FC<{ mode?: 'default' | 'wiki' }> = ({ mode = 'd
                                             }
                                             handleCallStatus(btn.status_value);
                                         }}
-                                        className="call-status-button"
+                                        className="call-status-button call-status-button-custom"
                                         style={{ 
-                                            background: btn.color, 
-                                            color: '#fff', 
-                                            borderColor: 'transparent',
+                                            ['--sb-bg' as any]: btn.color,
+                                            ['--sb-bg-hover' as any]: (btn as any).color_active || btn.color,
+                                            ['--sb-border' as any]: (btn as any).border_color || 'transparent',
+                                            ['--sb-border-hover' as any]: (btn as any).border_color_hover || (btn as any).border_color || 'transparent',
+                                            ['--sb-icon' as any]: (btn as any).icon_color || '#ffffff',
+                                            ['--sb-icon-hover' as any]: (btn as any).icon_color_hover || (btn as any).icon_color || '#ffffff',
+                                            background: 'var(--sb-bg)',
+                                            color: '#fff',
+                                            borderColor: 'var(--sb-border)',
                                             padding: isMobile ? '10px 8px' : '12px 16px',
                                             fontSize: isMobile ? '0.8rem' : '0.9rem',
                                             minHeight: isMobile ? '48px' : '52px',
@@ -526,14 +536,6 @@ export const ManagerCall: React.FC<{ mode?: 'default' | 'wiki' }> = ({ mode = 'd
                                             borderRadius: '8px',
                                             textAlign: 'center',
                                             lineHeight: isMobile ? '1.1' : '1.2'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.filter = 'brightness(0.92)';
-                                            e.currentTarget.style.transform = 'translateY(-1px)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.filter = '';
-                                            e.currentTarget.style.transform = 'translateY(0)';
                                         }}
                                     >
                                         <Icon size={isMobile ? 16 : 14} style={{ flexShrink: 0 }} />

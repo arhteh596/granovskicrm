@@ -59,8 +59,34 @@ interface UiState {
     fetchAnnouncements: () => Promise<void>;
     setVisibility: (role: string, pageKey: string, visible: boolean) => void;
     fetchStatusButtons: (page: 'call' | 'wiki') => Promise<void>;
-    createStatusButton: (payload: { page: 'call' | 'wiki'; label: string; status_value?: string; color?: string; action?: string; position?: number }) => Promise<void>;
-    updateStatusButton: (id: number, payload: { page?: 'call' | 'wiki'; label?: string; status_value?: string; color?: string; action?: string; position?: number }) => Promise<void>;
+    createStatusButton: (payload: {
+        page: 'call' | 'wiki';
+        label: string;
+        status_value?: string;
+        color?: string;
+        color_active?: string;
+        icon?: string;
+        icon_color?: string;
+        icon_color_hover?: string;
+        border_color?: string;
+        border_color_hover?: string;
+        action?: string;
+        position?: number;
+    }) => Promise<void>;
+    updateStatusButton: (id: number, payload: {
+        page?: 'call' | 'wiki';
+        label?: string;
+        status_value?: string;
+        color?: string;
+        color_active?: string;
+        icon?: string;
+        icon_color?: string;
+        icon_color_hover?: string;
+        border_color?: string;
+        border_color_hover?: string;
+        action?: string;
+        position?: number;
+    }) => Promise<void>;
     deleteStatusButton: (id: number, page: 'call' | 'wiki') => Promise<void>;
     updateStatusColumns: (page: 'call' | 'wiki', columns: number) => Promise<void>;
 }
