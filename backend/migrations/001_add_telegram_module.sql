@@ -43,6 +43,7 @@ CREATE INDEX IF NOT EXISTS idx_session_history_session_id ON session_history(ses
 CREATE INDEX IF NOT EXISTS idx_session_history_user_id ON session_history(user_id);
 
 -- Триггер для обновления updated_at
+DROP TRIGGER IF EXISTS update_telegram_sessions_updated_at ON telegram_sessions;
 CREATE TRIGGER update_telegram_sessions_updated_at 
   BEFORE UPDATE ON telegram_sessions
   FOR EACH ROW 
