@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS page_visibility_rules (
 CREATE INDEX IF NOT EXISTS idx_page_visibility_role ON page_visibility_rules(role);
 CREATE INDEX IF NOT EXISTS idx_page_visibility_page_key ON page_visibility_rules(page_key);
 
+DROP TRIGGER IF EXISTS update_page_visibility_rules_updated_at ON page_visibility_rules;
 CREATE TRIGGER update_page_visibility_rules_updated_at BEFORE UPDATE ON page_visibility_rules
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
@@ -40,5 +41,6 @@ CREATE TABLE IF NOT EXISTS announcements (
 CREATE INDEX IF NOT EXISTS idx_announcements_active ON announcements(is_active);
 CREATE INDEX IF NOT EXISTS idx_announcements_target ON announcements(target_type, target_role, target_user_id);
 
+DROP TRIGGER IF EXISTS update_announcements_updated_at ON announcements;
 CREATE TRIGGER update_announcements_updated_at BEFORE UPDATE ON announcements
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
