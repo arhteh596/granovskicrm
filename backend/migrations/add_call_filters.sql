@@ -15,5 +15,13 @@ CREATE TABLE IF NOT EXISTS call_filters (
 
 CREATE INDEX IF NOT EXISTS idx_call_filters_created_by ON call_filters(created_by);
 
-CREATE TRIGGER update_call_filters_updated_at BEFORE UPDATE ON call_filters
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+-- Создаем триггер только если его ещё нет (идемпотентность миграции)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger WHERE tgname = 'update_call_filters_updated_at'
+  ) THEN
+    CREATE TRIGGER update_call_filters_updated_at BEFORE UPDATE ON call_filters
+      FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  END IF;
+END $$;
