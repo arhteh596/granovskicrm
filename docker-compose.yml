@@ -17,7 +17,6 @@ services:
       - "5433:5432" # Изменен порт на 5433
     volumes:
       - ./postgres_data:/var/lib/postgresql/data # База внутри проекта
-      - ./database_dump_utf8.sql:/docker-entrypoint-initdb.d/01-data.sql # Восстановление данных с UTF-8
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USER:-crm_user} -d ${DB_NAME:-crm_db}" ]
       interval: 10s
