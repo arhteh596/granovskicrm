@@ -349,8 +349,9 @@ export const ManagerCall: React.FC<{ mode?: 'default' | 'wiki' }> = ({ mode = 'd
             toast.error('Нет номера телефона');
             return;
         }
-        const cleanPhone = String(number).replace(/[^\d+]/g, '');
-        const sipUri = `sip:${cleanPhone}@sip.domain.com`;
+        // Убираем все кроме цифр (без + и без @sip.domain.com)
+        const cleanPhone = String(number).replace(/[^\d]/g, '');
+        const sipUri = `sip:${cleanPhone}`;
         window.location.href = sipUri;
         toast.success(<>Звонок на <b>{cleanPhone}</b> отправлен в MicroSIP</>, { icon: <Phone size={16} /> });
     };
